@@ -51,7 +51,12 @@ public class Bot extends TelegramLongPollingBot{
 			switch(userText) {
 			
 			case "/start" :
-				sendMessage(chatId,"I will help you with translation");
+			//	sendMessage(chatId,"I will help you with translation, choose the language:");
+				try {
+                    execute(sendInlineKeyBoardMessage(update.getMessage().getChatId(),markupString));
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
 			break;
 			
 			
@@ -66,28 +71,23 @@ public class Bot extends TelegramLongPollingBot{
 		    	else if(languageTo=="") {
 		    		languageTo=detectLanguage(markupString,userText);
 		    	}
-		    	 if(update.getMessage().getText().equals("Hello")){
-	                    try {
-	                        execute(sendInlineKeyBoardMessage(update.getMessage().getChatId()));
-	                    } catch (TelegramApiException e) {
-	                        e.printStackTrace();
-	                    }
-	                }
-		    	 else if(update.hasCallbackQuery()){
-		    		 SendMessage s1 = new SendMessage();
-		    		 s1.setChatId(update.getCallbackQuery().getMessage().getChatId());
-		    		 s1.setText(update.getCallbackQuery().getData());
-		             try {
-		                 execute(s1);
-
-		             } catch (TelegramApiException e) {
-		                 e.printStackTrace();
-		             }
-		         }
+		    
+		    	
 		    	sendMessage(chatId,getTranslate(userText));
 			}
 		
 		}
+		 else if(update.hasCallbackQuery()){
+    		 SendMessage s1 = new SendMessage();
+    		 s1.setChatId(update.getCallbackQuery().getMessage().getChatId());
+    		 s1.setText(update.getCallbackQuery().getData());
+             try {
+                 execute(s1);
+
+             } catch (TelegramApiException e) {
+                 e.printStackTrace();
+             }
+         }
 	}
 
 	@Override
@@ -140,27 +140,30 @@ public class Bot extends TelegramLongPollingBot{
 		}
 		return textMessage;
 	}
-	public static SendMessage sendInlineKeyBoardMessage(long chatId) {
+	public static SendMessage sendInlineKeyBoardMessage(long chatId,String markupString) {
 	     InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-	     InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
-	    // InlineKeyboardButton inlineKeyboardButton2 = new InlineKeyboardButton();
-	     inlineKeyboardButton1.setText("Тык");
-	     inlineKeyboardButton1.setCallbackData("Button \"Тык\" has been pressed");
-	   //  inlineKeyboardButton2.setText("Тык2");
-	   //  inlineKeyboardButton2.setCallbackData("Button \"Тык2\" has been pressed");
-	     List<InlineKeyboardButton> keyboardButtonsRow1 = new ArrayList<>();
-	     List<InlineKeyboardButton> keyboardButtonsRow2 = new ArrayList<>();
-	     keyboardButtonsRow1.add(inlineKeyboardButton1);
-	  //   keyboardButtonsRow1.add(inlineKeyboardButton2);
-	//    keyboardButtonsRow1.add(new InlineKeyboardButton().setText("Fi4a"));
-	  //   keyboardButtonsRow2.add(inlineKeyboardButton2);
+	  
+		     
+	     String [] array = markupString.split(";");
+			List<String> languages = Arrays.asList(array);
+			List<InlineKeyboardButton> buttons = new ArrayList<>();
+			for(int i=0; i<languages.size();i++) {
+				buttons.add(i, new InlineKeyboardButton());
+				buttons.get(i).setText(languages.get(i));
+				buttons.get(i).setCallbackData("the language "+languages.get(i) +" has been chosen");
+			}
+	     
+
+
+
+	    
 	     List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
-	     rowList.add(keyboardButtonsRow1);
-	//     rowList.add(keyboardButtonsRow2);
+	     rowList.add(buttons);
+
 	     inlineKeyboardMarkup.setKeyboard(rowList);
 	     SendMessage s = new SendMessage();
 	     s.setChatId(chatId);
-	     s.setText("Example");
+	     s.setText("I will help you with translation, choose the language:");
 	     s.setReplyMarkup(inlineKeyboardMarkup);
 	     return s;
 	    }
