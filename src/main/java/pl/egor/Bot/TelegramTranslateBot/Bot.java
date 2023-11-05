@@ -29,19 +29,7 @@ public class Bot extends TelegramLongPollingBot{
 
 	@Override
 	public void onUpdateReceived(Update update) {
-//		ReplyKeyboardMarkup keyBoardMarkup = new ReplyKeyboardMarkup();
-//	    List<KeyboardRow> keyboard = new ArrayList<>();
-//	    KeyboardRow kr = new KeyboardRow();
-//	    KeyboardButton k = new KeyboardButton();
-//	    k.setText("g");
-//	    KeyboardButton k1 = new KeyboardButton();
-//	    k1.setText("k");
-//	    kr.add(k1);
-//	    kr.add(k);
-//	    keyboard.add(kr);
-//	    keyBoardMarkup.setKeyboard(keyboard);
-//	    SendMessage s = new SendMessage();
-//	    s.setReplyMarkup(keyBoardMarkup);
+
 	  
 		// TODO Auto-generated method stub
 		if(update.hasMessage()) {
@@ -51,7 +39,7 @@ public class Bot extends TelegramLongPollingBot{
 			switch(userText) {
 			
 			case "/start" :
-			//	sendMessage(chatId,"I will help you with translation, choose the language:");
+				//sendMessage(chatId,"I will help you with translation, choose the language:");
 				try {
                     execute(sendInlineKeyBoardMessage(update.getMessage().getChatId(),markupString));
                 } catch (TelegramApiException e) {
@@ -63,6 +51,11 @@ public class Bot extends TelegramLongPollingBot{
 			case "/help" :
 				sendMessage(chatId,"Just input a word");
 				break;
+				
+			case "/reset":
+				languageFrom = "";
+				languageTo = "";
+				sendMessage(chatId,"languages have been reset");
 				
 		    default :
 		    	if(languageFrom=="") {
@@ -81,6 +74,13 @@ public class Bot extends TelegramLongPollingBot{
     		 SendMessage s1 = new SendMessage();
     		 s1.setChatId(update.getCallbackQuery().getMessage().getChatId());
     		 s1.setText(update.getCallbackQuery().getData());
+    		 System.out.println(s1.getText());
+    		 if(languageFrom=="") {
+		    		languageFrom=detectLanguage(markupString,s1.getText());
+		    	}
+		    	else if(languageTo=="") {
+		    		languageTo=detectLanguage(markupString,s1.getText());
+		    	}
              try {
                  execute(s1);
 
@@ -135,7 +135,7 @@ public class Bot extends TelegramLongPollingBot{
 		}
 		else {
 			System.out.println("Cannot detect the language, try again");
-			return null;
+			return "";
 		
 		}
 		return textMessage;
@@ -150,7 +150,7 @@ public class Bot extends TelegramLongPollingBot{
 			for(int i=0; i<languages.size();i++) {
 				buttons.add(i, new InlineKeyboardButton());
 				buttons.get(i).setText(languages.get(i));
-				buttons.get(i).setCallbackData("the language "+languages.get(i) +" has been chosen");
+				buttons.get(i).setCallbackData(languages.get(i));
 			}
 	     
 
