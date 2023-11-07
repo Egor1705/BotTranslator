@@ -1,9 +1,14 @@
 package pl.egor.Bot.TelegramTranslateBot;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -23,7 +28,8 @@ public class Bot extends TelegramLongPollingBot{
 	private String languageFrom= "";
 	private String languageTo= "";
 	private final String keyAPI = "AIzaSyD894lVRW4xnfNDDO0Egq40ejmNchRZYvs";
-	private String markupString = "ru;en;es;fr";
+	//private String markupString = "ru;en;es;fr";
+	private List<String> languages = new ArrayList<>();
 	private final String BOT_TOKEN = "6837011716:AAEWOT9UdVAXf_CWSwHIA0SuDuilZm-fW7E";
 	private final String BOT_NAME = "translateForMe1999Bot";
 
@@ -40,13 +46,15 @@ public class Bot extends TelegramLongPollingBot{
 			
 			case "/start" :
 				//sendMessage(chatId,"I will help you with translation, choose the language:");
+				parseLanguages(languages);
 				try {
-                    execute(sendInlineKeyBoardMessage(update.getMessage().getChatId(),markupString));
+                    execute(sendInlineKeyBoardMessage(update.getMessage().getChatId(),languages));
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
 			break;
 			
+
 			
 			case "/help" :
 				sendMessage(chatId,"Just input a word");
@@ -59,10 +67,10 @@ public class Bot extends TelegramLongPollingBot{
 				
 		    default :
 		    	if(languageFrom=="") {
-		    		languageFrom=detectLanguage(markupString,userText);
+		    		languageFrom=detectLanguage(languages,userText);
 		    	}
 		    	else if(languageTo=="") {
-		    		languageTo=detectLanguage(markupString,userText);
+		    		languageTo=detectLanguage(languages,userText);
 		    	}
 		    
 		    	
@@ -76,10 +84,10 @@ public class Bot extends TelegramLongPollingBot{
     		 s1.setText(update.getCallbackQuery().getData());
     		 System.out.println(s1.getText());
     		 if(languageFrom=="") {
-		    		languageFrom=detectLanguage(markupString,s1.getText());
+		    		languageFrom=detectLanguage(languages,s1.getText());
 		    	}
 		    	else if(languageTo=="") {
-		    		languageTo=detectLanguage(markupString,s1.getText());
+		    		languageTo=detectLanguage(languages,s1.getText());
 		    	}
              try {
                  execute(s1);
@@ -124,9 +132,9 @@ public class Bot extends TelegramLongPollingBot{
 		return t.getTranslatedText();
 	}
 	
-	public String detectLanguage(String markupString,String textMessage) {
-		String [] array = markupString.split(";");
-		List<String> languages = Arrays.asList(array);
+	public String detectLanguage(List<String> languages,String textMessage) {
+//		String [] array = markupString.split(";");
+//		List<String> languages = Arrays.asList(array);
 		
 	
 		
@@ -140,12 +148,13 @@ public class Bot extends TelegramLongPollingBot{
 		}
 		return textMessage;
 	}
-	public static SendMessage sendInlineKeyBoardMessage(long chatId,String markupString) {
+	public static SendMessage sendInlineKeyBoardMessage(long chatId,List<String> languages) {
 	     InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 	  
 		     
-	     String [] array = markupString.split(";");
-			List<String> languages = Arrays.asList(array);
+//	     String [] array = markupString.split(";");
+//			List<String> languages = Arrays.asList(array);
+			System.out.println(languages);
 			List<InlineKeyboardButton> buttons = new ArrayList<>();
 			for(int i=0; i<languages.size();i++) {
 				buttons.add(i, new InlineKeyboardButton());
@@ -168,6 +177,32 @@ public class Bot extends TelegramLongPollingBot{
 	     return s;
 	    }
 	
+	public List<String> parseLanguages(List<String> languages){
+		Document doc;
+		//languages = new ArrayList<>();
+		try {
+			doc = Jsoup.connect("https://cloud.google.com/translate/docs/languages")
+					   .userAgent("Chrome/23.0.1271.95").referrer("http://www.google.com").get();
+		 
+	
+
+			
+			Elements elementObj = doc.select("table").select("tbody").select("tr").select("td").select("code");
+			System.out.println(elementObj.text());
+			
+	   
+	   for(Element el:elementObj) {
+		   String t = el.text();
+		   languages.add(t);
+	   }
+		}
+	   catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return languages;
+    	
+	}
 	
 	
 
