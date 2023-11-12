@@ -82,7 +82,7 @@ public class Bot extends TelegramLongPollingBot{
     		 SendMessage s1 = new SendMessage();
     		 s1.setChatId(update.getCallbackQuery().getMessage().getChatId());
     		 s1.setText(update.getCallbackQuery().getData());
-    		 System.out.println(s1.getText());
+    		// System.out.println(s1.getText());
     		 if(languageFrom=="") {
 		    		languageFrom=detectLanguage(languages,s1.getText());
 		    	}
@@ -154,7 +154,7 @@ public class Bot extends TelegramLongPollingBot{
 		     
 //	     String [] array = markupString.split(";");
 //			List<String> languages = Arrays.asList(array);
-			System.out.println(languages);
+		//	System.out.println(languages);
 			List<InlineKeyboardButton> buttons = new ArrayList<>();
 			for(int i=0; i<languages.size();i++) {
 				buttons.add(i, new InlineKeyboardButton());
@@ -186,15 +186,33 @@ public class Bot extends TelegramLongPollingBot{
 		 
 	
 
+			System.out.println("----");
 			
-			Elements elementObj = doc.select("table").select("tbody").select("tr").select("td").select("code");
-			System.out.println(elementObj.text());
+//			Elements elementObj = doc.select("table").select("tbody").select("tr").select("td");
+//			
+//			
+//			
+//			for(int i=0;i<elementObj.size();i++) {
+//				String language = doc.select("table").select("tbody").select("tr").select("td").get(i).text();
+//				
+//				languages.add(language);
+//			}
 			
+			Elements rows = doc.select("table").select("tbody").select("tr").select("td");
+			
+			List<String> languageList = new ArrayList<>();
+			for (int i = 0;i<rows.size();i++) {
+			  //  row.select("td").first();
+				if(i%2==0) {
+					languageList.add(rows.get(i).text());
+				}
+			
+			}
+			System.out.println(languageList);
+			
+	
 	   
-	   for(Element el:elementObj) {
-		   String t = el.text();
-		   languages.add(t);
-	   }
+	   
 		}
 	   catch (IOException e) {
 			// TODO Auto-generated catch block
