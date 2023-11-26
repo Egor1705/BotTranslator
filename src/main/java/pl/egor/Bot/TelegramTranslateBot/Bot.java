@@ -46,8 +46,10 @@ public class Bot extends TelegramLongPollingBot{
 			
 			case "/start" :
 				//sendMessage(chatId,"I will help you with translation, choose the language:");
-				parseLanguages(languages);
+				//parseLanguages(languages);
+				
 				try {
+					//execute(createInlineKeyboard(update.getMessage().getChatId()));
                     execute(sendInlineKeyBoardMessage(update.getMessage().getChatId(),languages));
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
@@ -136,7 +138,7 @@ public class Bot extends TelegramLongPollingBot{
 //		String [] array = markupString.split(";");
 //		List<String> languages = Arrays.asList(array);
 		
-	
+	System.out.println("in detect "+languages);
 		
 		if(languages.contains(textMessage)) {
 		System.out.println(textMessage+" language has been defined");	
@@ -151,7 +153,7 @@ public class Bot extends TelegramLongPollingBot{
 	public static SendMessage sendInlineKeyBoardMessage(long chatId,List<String> languages) {
 	     InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 	  
-		     
+		     System.out.println("in send "+languages);
 //	     String [] array = markupString.split(";");
 //			List<String> languages = Arrays.asList(array);
 		//	System.out.println(languages);
@@ -177,41 +179,91 @@ public class Bot extends TelegramLongPollingBot{
 	     return s;
 	    }
 	
+	
+//	public static SendMessage createInlineKeyboard(long chatId) {
+//        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup(); // Create the Inline Keyboard Markup
+//        List<List<InlineKeyboardButton>> inlineKeyboard = new ArrayList<>(); // Create the Inline Keyboard
+//     
+//        List<InlineKeyboardButton> keyboardButtonsSecondRow = new ArrayList<>();
+//        List<InlineKeyboardButton> keyboardButtonsThirdRow = new ArrayList<>();
+//
+//        // Create buttons
+//        
+//        
+//
+//        InlineKeyboardButton ygoProDeck = new InlineKeyboardButton("YGOPRODECK");
+//        ygoProDeck.setUrl("https://ygoprodeck.com/");
+//
+//        InlineKeyboardButton yugipedia = new InlineKeyboardButton("Yugipedia");
+//        yugipedia.setUrl("https://yugipedia.com/wiki/Yugipedia");
+//
+//        InlineKeyboardButton cardmarket = new InlineKeyboardButton("Cardmarket");
+//        cardmarket.setUrl("https://www.cardmarket.com/en");
+//
+//        InlineKeyboardButton tcgPlayer = new InlineKeyboardButton("TCGPlayer");
+//        tcgPlayer.setUrl("https://www.tcgplayer.com/");
+//
+//        markupInline.setKeyboard(inlineKeyboard); // Add the keyboard to the markup
+//
+//        // Add the rows to the keyboard
+//
+//        inlineKeyboard.add(keyboardButtonsSecondRow);
+//        inlineKeyboard.add(keyboardButtonsThirdRow);
+//
+//        // Add the buttons to the row
+//        keyboardButtonsSecondRow.add(ygoProDeck);
+//        keyboardButtonsSecondRow.add(yugipedia);
+//        keyboardButtonsThirdRow.add(cardmarket);
+//        keyboardButtonsThirdRow.add(tcgPlayer);
+//
+//        SendMessage s = new SendMessage();
+//	     s.setChatId(chatId);
+//	     s.setText("Hello, I will help you with translation, choose the language:");
+//	     s.setReplyMarkup(markupInline);
+//	     
+//	     return s;
+//        
+//    }
+	
+	
+	
 	public List<String> parseLanguages(List<String> languages){
 		Document doc;
-		//languages = new ArrayList<>();
+		List<String> languageList = new ArrayList<>();
 		try {
 			doc = Jsoup.connect("https://cloud.google.com/translate/docs/languages")
 					   .userAgent("Chrome/23.0.1271.95").referrer("http://www.google.com").get();
 		 
-	
-
-			System.out.println("----");
-			
-//			Elements elementObj = doc.select("table").select("tbody").select("tr").select("td");
-//			
-//			
-//			
-//			for(int i=0;i<elementObj.size();i++) {
-//				String language = doc.select("table").select("tbody").select("tr").select("td").get(i).text();
-//				
-//				languages.add(language);
-//			}
-			
+		
 			Elements rows = doc.select("table").select("tbody").select("tr").select("td");
 			
-			List<String> languageList = new ArrayList<>();
-			for (int i = 0;i<rows.size();i++) {
-			  //  row.select("td").first();
+			for (int i = 0;i<rows.size();i++) {			 
 				if(i%2==0) {
 					languageList.add(rows.get(i).text());
-				}
-			
+				}		
 			}
-			System.out.println(languageList);
 			
+			
+			
+			for(String s:languageList) {
+				
+				if(s.contains("Zulu")) {
+					break;
+				}
+				languages.add(s);
+			}
+
 	
+//	   languageList.stream().forEach(s -> {
+//		   if(s.contains("Zulu")) {
+//		   return;
+//	   }
+//	   newLanguageList.add(s);
+//	   });
 	   
+	  
+	   
+	   System.out.println(languages);
 	   
 		}
 	   catch (IOException e) {
